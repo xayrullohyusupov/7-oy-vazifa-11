@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirish</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Kirish</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Kirish</button>
+        </form>
+        <p>Hisobingiz yo'qmi? <a href="{% url 'signup' %}">Ro'yxatdan o'ting</a></p>
+    </div>
+</body>
+</html>

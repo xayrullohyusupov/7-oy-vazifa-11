@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Majestic Admin</title>
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="/static/dashboard/vendors/mdi/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="/static/dashboard/vendors/base/vendor.bundle.base.css">
+  <!-- endinject -->
+  <!-- plugin css for this page -->
+  <link rel="stylesheet" href="/static/dashboard/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+  <!-- End plugin css for this page -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="/static/dashboard/css/style.css">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="/static/dashboard/images/favicon.png" />
+  <style>
+    .table thead th {
+        background-color: #007bff;
+        color: white;
+    }
+    .table tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .table tbody tr:hover {
+        background-color: #ddd;
+    }
+</style>
+</head>
+<body>
+  <div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="navbar-brand-wrapper d-flex justify-content-center">
+  <div class="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">  
+    <a class="navbar-brand brand-logo" href="index.html"><img src="/static/dashboard/images/logo.svg" alt="logo"/></a>
+    <a class="navbar-brand brand-logo-mini" href="index.html"><img src="/static/dashboard/images/logo-mini.svg" alt="logo"/></a>
+  </div>  
+</div>
+<div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+  <ul class="navbar-nav navbar-nav-right">
+    {% if user.is_authenticated %}
+        <li class="nav-item nav-profile dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+                <img src="/static/dashboard/images/faces/face5.jpg" alt="profile"/>
+                <span class="nav-profile-name">{{ user.username }}</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+                <a class="dropdown-item" href="{% url 'logout' %}">
+                    <i class="mdi mdi-logout text-primary"></i>
+                    Akauntdan chiqish
+                </a>
+            </div>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Kirish</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'signup' %}">Ro'yxatdan o'tish</a>
+        </li>
+    {% endif %}
+</ul>
+</div>
+</nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+      <!-- partial:partials/_sidebar.html -->
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'index' %}">
+              <i class="mdi mdi-home menu-icon"></i>
+              <span class="menu-title">Boshqaruv paneli</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'contactList' %}">
+              <i class="mdi mdi-file-document-box-outline menu-icon"></i>
+              <span class="menu-title">Murojatlar</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- partial -->
+      <div class="main-panel">
+        <div class="content-wrapper">
+        <div class="row">
+          <div class="col-md-12 stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <div class="container mt-5">
+                    {% if user.is_authenticated %}
+                      <table id="recent-purchases-listing" class="table table-bordered table-hover">
+                          <thead>
+                                <tr>
+                                  <th>#</th>
+                                  <th>Ism Familiya</th>
+                                  <th>Telefon raqam</th>
+                                  <th>Sana</th>
+                                  <th>Daromad</th>
+                                  <th>email</th>
+                                 <th>Ko'rilgan yoki Yangi</th>
+                                  <th>Harakatlar</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for contact in contacts %}
+                              <tr>
+                                  <td>{{forloop.counter}}</td>
+                                  <td>{{contact.full_name}}</td>
+                                  <td>{{contact.phone_number}}</td>
+                                 <td>{{contact.created_at}}</td>
+                                  <td>{{contact.price}}</td>
+                                  <td>{{contact.email}}</td>
+                                  {% if contact.is_show %} 
+                                  <td><button class="btn btn-success" >Ko'rilgan</button></td>
+                                  <td><button class="btn btn-info">Statusni o`zgartirish
+                                  </button></td>
+                                  {% else %}
+                                  <td><button class="btn btn-warning" >Yangi</button></td>
+                                  <td><button type="button" class="btn btn-info" data-toggle="modal" data-target="#info-alert-modal{{contact.id}}">Holatni o`zgartirish</button></td>
+                                  {% endif %}
+                              </tr>
+                              {% endfor %}
+                          </tbody>
+                      </table>
+                    {%else%}
+                        <h1>
+                          Siz login qilmagansiz 
+                          login yoki ro'yhatdan o'tib
+                          qayta urinib ko'ring
+                        </h1>
+                   {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        {% for contact in contacts %}
+
+                                <!-- Info Alert Modal -->
+    <div id="info-alert-modal{{contact.id}}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <i class="dripicons-information h1 text-info"></i>
+                        <div class="card-body">
+                            <form action="{% url 'updateStatus' contact.id %}" method="get">
+                                <h4 class="card-title">Murojat statusini ko`rildiga o`zgaritish</h4>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1" required>
+                                    <label class="custom-control-label" for="customCheck1">Roziman</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-info my-2" style="color: white;" >Yuborish</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+
+        <!-- content-wrapper ends -->
+        <!-- partial:partials/_footer.html -->
+        <!-- partial -->
+      </div>
+      <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+
+  <!-- plugins:js -->
+  <script src="/static/dashboard/vendors/base/vendor.bundle.base.js"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page-->
+  <script src="/static/dashboard/vendors/chart.js/Chart.min.js"></script>
+  <script src="/static/dashboard/vendors/datatables.net/jquery.dataTables.js"></script>
+  <script src="/static/dashboard/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+  <!-- End plugin js for this page-->
+  <!-- inject:js -->
+  <script src="/static/dashboard/js/js/off-canvas.js"></script>
+  <script src="/static/dashboard/js/js/hoverable-collapse.js"></script>
+  <script src="/static/dashboard/js/js/template.js"></script>
+  <!-- endinject -->
+  <!-- Custom js for this page-->
+  <script src="/static/dashboard/js/js/dashboard.js"></script>
+  <script src="/static/dashboard/js/js/data-table.js"></script>
+  <script src="/static/dashboard/js/js/jquery.dataTables.js"></script>
+  <script src="/static/dashboard/js/js/dataTables.bootstrap4.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- End custom js for this page-->
+</body>
+
+</html>
+
